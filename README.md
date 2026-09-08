@@ -133,4 +133,4 @@ Performance parameters extracted from the converged numerical solution:
 * **Teaching Assistant:** Mr. Alireza Jalali
 * **Course Title:** Computational Fluid Dynamics (CFD)
 * **Institution:** Sharif University of Technology, Tehran, Iran
-* **Submission Date:** August 2026 (Mordad 1405)
+* **Submission Date:** August 2026 
