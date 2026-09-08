@@ -37,7 +37,7 @@ The geometry consists of a counter-flow arrangement where the hot fluid flows th
 
 ### Fluid and Solid Properties
 
-| Material | State | Density ($\rho$) [$\text{kg/m}^3$] | Specific Heat ($c_p$) [$\text{J/kg}\cdot\text{K}$] | Thermal Cond. ($k$) [$\text{W/m}\cdot\text{K}$] | Dyn. Viscosity ($\mu$) [$\text{kg/m}\cdot\text{s}$] |
+| Material | State | Density ($\rho$) | Specific Heat ($c_p$)  | Thermal Cond. ($k$)  | Dyn. Viscosity ($\mu$)  |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Water ($\text{H}_2\text{O}$)** | Fluid | 998.2 | 4182 | 0.6 | 0.001003 |
 | **Aluminum** | Solid | 2719 | 871 | 202.4 | — |
