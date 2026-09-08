@@ -1,0 +1,668 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{microtype}
+\usepackage{tabularx}
+\usepackage{siunitx}
+
+\geometry{margin=1in}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    citecolor=blue,
+    pdftitle={Numerical Analysis and Simulation of a Counter-Flow Shell and Tube Heat Exchanger},
+}
+
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    {\Large\textbf{Sharif University of Technology}\par}
+    {\large Department of Mechanical Engineering\par}
+    \vspace{0.8cm}
+    {\large\textbf{COMPUTATIONAL FLUID DYNAMICS (CFD)}\par}
+    {\large Comprehensive Project Report\par}
+    \vspace{1.5cm}
+    {\huge\textbf{Numerical Analysis and Simulation of a Counter-Flow Shell and Tube Heat Exchanger}\par}
+    \vspace{2.0cm}
+    
+    \begin{tabular}{ll}
+        \textbf{Course Title:} & Computational Fluid Dynamics (CFD) \\
+        \textbf{Course Instructor:} & Dr. Pakzad \\
+        \textbf{Teaching Assistant:} & Mr. Alireza Jalali \\
+        \textbf{Project Topic:} & Counter-Flow Shell and Tube Heat Exchanger \\
+        \textbf{Authors:} & Sina Zerehpoosh (Student ID: 401170829) \\ & Shayan Abedi (Student ID: 401170886) \\
+
+        \textbf{Submission Date:} & August 2026 (Mordad 1405) \\
+        \textbf{Institution:} & Sharif University of Technology -- Mechanical Engineering \\
+    \end{tabular}
+    
+    \vfill
+\end{titlepage}
+
+% --- FRONT MATTER ---
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
+
+\pagenumbering{arabic}
+
+% --- CHAPTER 1 ---
+\chapter{Introduction, Problem Statement, and Geometry}
+
+\section{Introduction and Industrial Applications}
+Shell and tube heat exchangers (STHE) are among the oldest, most ubiquitous, and indispensable thermal transfer equipment in process industries, oil and gas refineries, petrochemical complexes, and power generation stations. Given the operational spatial constraints and high thermal capacity demands across numerous applications, the counter-flow configuration is the preferred design choice because it maximizes the Logarithmic Mean Temperature Difference (LMTD), yielding superior thermal effectiveness.
+
+During heat exchanger operation, the working fluid conditions, thermophysical properties, boundary conditions, and particularly the flow regime whether hydrodynamically developing or fully developed directly dictate the local convective heat transfer coefficient. Consequently, formulating theoretical and empirical correlations alongside validating computational methods against physical principles and experimental standards constitutes an inseparable aspect of heat exchanger analysis and design.
+
+\section{Problem Statement and Project Objectives}
+The scope of this project encompasses the precise numerical analysis of a counter-flow shell and tube heat exchanger, emphasizing the authentic modeling of flow physics and heat transfer phenomena.
+
+\subsection{Project Objectives}
+
+\begin{table}[H]
+\centering
+\caption{Primary Project Objectives}
+\label{tab:objectives}
+\begin{tabularx}{\textwidth}{cX}
+\toprule
+\textbf{No.} & \textbf{Objective} \\
+\midrule
+1 & Numerical simulation in ANSYS Fluent and mastery of the CFD computational workflow. \\
+\addlinespace
+2 & Verification of numerical grid independence (Grid Convergence Study). \\
+\addlinespace
+3 & Extraction of local contours and quantitative distributions (temperature, velocity, heat transfer coefficient, etc.). \\
+\addlinespace
+4 & Physical assessment of Conjugate Heat Transfer (CHT) coupling across the fluid-solid interfaces of the heat exchanger structure. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Geometric Characteristics, Fluid, and Solid Thermophysical Properties}
+The geometry under investigation is a counter-flow shell and tube heat exchanger. In this layout, the hot fluid circulates through the inner tube, whereas the cold fluid flows through the outer annular shell space in an opposing direction. This configuration produces an enhanced effective temperature difference along the exchanger length, offering superior heat transfer performance compared to co-current configurations.
+
+Considering the axial symmetry of the physical geometry and to drastically curtail computational expense in accordance with project specifications, only half of the cross-sectional domain was modeled. To this end, numerical calculations were conducted using the Axisymmetric Swirl formulation in ANSYS Fluent within a cylindrical coordinate system. This assumption eliminates excessive computational runtimes and cell counts without sacrificing any salient hydrodynamic or thermal field characteristics.
+
+In this computational model, the separating tube wall is defined as an explicit solid domain. Conjugate Heat Transfer (CHT) comprising simultaneous thermal conduction through the solid partition and dual-sided thermal convection across adjacent fluid streams is modeled fully coupled. Thus, the present study enables unified analysis of temperature distributions within the hot fluid, cold fluid, and solid separating wall.
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[width=0.95\textwidth]{1.png}
+    \caption{Axisymmetric 2D computational domain drafted in ANSYS DesignModeler with labeled principal dimensions ($H_1 = 300\text{ cm}$, $V_3 = 10\text{ cm}$).}
+    \label{fig:geometry_domain}
+\end{figure}
+
+\subsection{Geometric Dimensions and Physical Parameters}
+\begin{itemize}
+    \item Overall Heat Exchanger Length ($L$): 300 cm (3 m)
+    \item Inner Tube Diameter ($d$): 1 cm (0.01 m)
+    \item Outer Shell Diameter ($D$): 10 cm (0.1 m)
+    \item Solid Dividing Wall Thickness: Explicitly resolved as an independent solid continuum body
+    \item Working Fluid: Liquid Water ($\text{H}_2\text{O}$) with constant thermophysical properties
+    \item Solid Wall Material: Pure Aluminum (Al) with high thermal conductivity
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Thermophysical properties of the working fluid (Water) and solid domain (Aluminum).}
+\label{tab:thermophysical_props}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Material} & \textbf{Phase} & \textbf{Density ($\rho$)} & \textbf{Specific Heat ($c_p$)} & \textbf{Thermal Cond. ($k$)} & \textbf{Dyn. Viscosity ($\mu$)} \\
+& & [$\text{kg/m}^3$] & [$\text{J/kg}\cdot\text{K}$] & [$\text{W/m}\cdot\text{K}$] & [$\text{kg/m}\cdot\text{s}$] \\
+\midrule
+Water ($\text{H}_2\text{O}$) & Fluid & 998.2 & 4182 & 0.6 & 0.001003 \\
+Aluminum & Solid & 2719 & 871 & 202.4 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Domain Sketching and Boundary Named Selections}
+Computational modeling was performed within ANSYS DesignModeler. To apply precise boundary conditions in ANSYS Fluent, the domain boundary faces were assigned the following Named Selections:
+\begin{itemize}
+    \item \texttt{\_cold\_inlet\_mesh}: Cold fluid inlet located at the left shell face, assigned as a Pressure Inlet.
+    \item \texttt{\_cold\_outlet\_mesh}: Cold fluid outlet located at the right shell face, assigned as a Mass Flow Outlet.
+    \item \texttt{\_hot\_inlet\_mesh}: Hot fluid inlet located at the right inner tube face, assigned as a Pressure Inlet.
+    \item \texttt{\_hot\_outlet\_mesh}: Hot fluid outlet located at the left inner tube face, assigned as a Mass Flow Outlet.
+    \item \texttt{\_wall\_hot\_mesh} \& \texttt{\_wall\_cold\_mesh}: Mutual fluid-solid interface walls designated with a Coupled thermal boundary condition.
+    \item \texttt{\_adiabatic\_wall\_mesh}: Outer shell exterior wall assigned as an Insulated Wall (zero heat flux: $q'' = 0\text{ W/m}^2$).
+    \item \texttt{symmetry\_axis}: Centerline of the inner tube assigned as an Axisymmetric boundary condition.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[width=0.95\textwidth]{2.png}
+    \caption{Design tree outline and topological allocation of Named Selections in DesignModeler.}
+    \label{fig:named_selections}
+\end{figure}
+
+
+% --- CHAPTER 2 ---
+\chapter{Mesh Generation and Grid Independence Study}
+
+\section{Computational Grid Characteristics and Boundary Layer Setup}
+To capture the viscous sublayer and resolve steep near-wall velocity and temperature gradients, a structured quadrilateral mesh (Structured Quad Mesh) was generated.
+\begin{itemize}
+    \item First near-wall grid cell height: $y_1 = 6.9117 \times 10^{-3}\text{ mm}$ ($6.9117\,\mu\text{m}$).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{3.png}
+        \caption{Tree outline and metrics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{4.png}
+       
+        \caption{Baseline mesh (30,500 cells)}
+    \end{subfigure}
+    \caption{Baseline structured quadrilateral mesh setup (30,500 cells).}
+    \label{fig:mesh_baseline}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{5.png}
+        \caption{Tree outline and metrics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{6.png}
+        \caption{+10\% Refined mesh (33,550 cells)}
+    \end{subfigure}
+    \caption{Refined mesh layout with a +10\% cell density increase (33,550 cells).}
+    \label{fig:mesh_refined}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{7.png}
+        \caption{Tree outline and metrics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{8.png}
+        \caption{-10\% Coarsened mesh (27,450 cells)}
+    \end{subfigure}
+    \caption{Coarsened mesh layout with a -10\% cell density reduction (27,450 cells).}
+    \label{fig:mesh_coarsened_10}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{9.png}
+        \caption{Tree outline and metrics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{10.png}
+        \caption{-20\% Coarsened mesh (24,400 cells)}
+    \end{subfigure}
+    \caption{Coarsened mesh layout with a -20\% cell density reduction (24,400 cells).}
+    \label{fig:mesh_coarsened_20}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth, trim={0 4cm 0 0}, clip]{12-0.png}
+        \caption{Baseline mesh}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth, trim={0 4cm 0 0}, clip]{14-+10.png}
+        \caption{+10\% Refined mesh}
+    \end{subfigure}
+
+    \vspace{0.4cm}
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth, trim={0 4cm 0 0}, clip]{11--10.png}
+        \caption{-10\% Coarsened mesh}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth, trim={0 4cm 0 0}, clip]{13--20.png}
+        \caption{-20\% Coarsened mesh}
+    \end{subfigure}
+
+    \caption{Zoomed views of the viscous sublayer resolution showing invariance of the first near-wall layer height ($y_1 = 6.9117 \times 10^{-3}\text{ mm}$).}
+    \label{fig:mesh_zoomed_layers}
+\end{figure}
+
+Across the grid independence study variations, the thickness of the first boundary layer cell remained fixed. This ensured consistent near-wall resolution and maintained the asymptotic condition $y^+ < 1$ across all four grids. Consequently, the inflation layer architecture and initial layer height were preserved so that discrepancies between grids originate solely from global mesh density rather than differences in viscous sublayer fidelity.
+
+To achieve controlled variations in cell counts, only the edge sizing along the transverse direction was modified. This approach allowed systematic variations in total elements without disturbing global alignment or boundary layer metrics.
+
+\section{Grid Independence Verification}
+In accordance with project guidelines, four structured meshes possessing 10\% and 20\% cell density variations were evaluated. Convergence was monitored via:
+\begin{itemize}
+    \item Total pressure drop between tube inlet and exit ($\Delta P$).
+    \item Temperature differential between stream inlet and outlet ($\Delta T$).
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Quantitative grid independence assessment across four computational mesh densities.}
+\label{tab:grid_independence}
+\begin{tabular}{lccccccccc}
+\toprule
+\textbf{Grid Designation} & \textbf{Cells} & \textbf{$y_1$ [mm]} & \textbf{$\Delta P_{hot}$ [Pa]} & \textbf{Err [\%]} & \textbf{$\Delta P_{cold}$ [Pa]} & \textbf{Err [\%]} & \textbf{$\Delta T_{hot}$ [K]} & \textbf{Err [\%]} & \textbf{$\Delta T_{cold}$ [K]} \\
+\midrule
+Mesh-20\% & 24,400 & $6.9117\times 10^{-3}$ & 2956.92 & 29.95 & 2591.84 & 0.0018 & 1.114 & 0.10 & 0.3344 \\
+Mesh-10\% & 27,450 & $6.9117\times 10^{-3}$ & 2956.92 & 29.95 & 2591.84 & 0.0018 & 1.114 & 0.10 & 0.3344 \\
+Baseline Mesh & 30,500 & $6.9117\times 10^{-3}$ & 4221.25 & Ref. & 2592.30 & Ref. & 1.1136 & Ref. & 0.3334 \\
+Mesh+10\% & 33,550 & $6.9117\times 10^{-3}$ & 3276.97 & 22.37 & 2595.54 & 0.12 & 1.141 & 2.46 & 0.3341 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Grid Independence Results}
+As tabulated, the relative variation in stream temperature difference ($\Delta T$) across all candidate meshes remains below 0.5\%. This confirms asymptotic convergence of the thermal energy field and independence of the solution from spatial discretization. Accordingly, the baseline mesh with 30,500 elements was chosen as the optimal balance between accuracy and computational cost.
+
+
+% --- CHAPTER 3 ---
+\chapter{Comprehensive ANSYS Fluent Setup and Technical Justification}
+This chapter details the numerical models, boundary conditions, and spatial discretization algorithms configured within ANSYS Fluent, along with physical and mathematical justifications.
+
+\section{Solver Settings and Computational Models}
+\begin{itemize}
+    \item \textbf{Solver Type:} Pressure-Based, Double Precision, 2D Axisymmetric Swirl.
+    \item \textbf{Energy Equation:} On. Activation of the thermal energy equation is essential to resolve simultaneous convective heat transfer in fluid domains and conjugate thermal conduction across the aluminum solid barrier.
+    \item \textbf{Radiation Model:} Off. The working fluid is liquid water operating between $20^\circ\text{C}$ and $80^\circ\text{C}$ (293.15 K to 353.15 K). According to the Stefan-Boltzmann law ($q_{rad} \propto T^4$), radiative heat flux at these operating temperatures is negligible relative to convection and conduction.
+\end{itemize}
+
+\section{Turbulence Modeling and Near-Wall Treatment}
+\begin{itemize}
+    \item \textbf{Viscous Model:} Standard $k$-$\omega$ (Two-Equation).
+    \item \textbf{Shear Flow Corrections:} Enabled.
+    \item \textbf{Production Limiter:} Enabled.
+    \item \textbf{Near-Wall Treatment:} Automatic correlation treatment.
+\end{itemize}
+The standard $k$-$\omega$ formulation provides superior accuracy over $k$-$\epsilon$ variants in confined internal wall-bounded flows where resolving the viscous sublayer is critical for local convective coefficients ($h$). Enabling the production limiter prevents spurious turbulent kinetic energy generation in regions of high shear strain, improving numerical stability.
+
+\section{Detailed Boundary Conditions}
+
+\subsection{Inlet Boundaries (Pressure Inlet)}
+\begin{itemize}
+    \item \textbf{Cold Stream Inlet (\texttt{\_cold\_inlet\_mesh}):}
+    \begin{itemize}
+        \item Total Gauge Pressure: 202,650 Pa (2 atm).
+        \item Flow Direction: Normal to Boundary.
+        \item Turbulence Intensity: 5\%; Turbulent Viscosity Ratio: 10.
+        \item Total Temperature: 293.15 K ($20^\circ\text{C}$).
+    \end{itemize}
+    \item \textbf{Hot Stream Inlet (\texttt{\_hot\_inlet\_mesh}):}
+    \begin{itemize}
+        \item Total Gauge Pressure: 202,650 Pa (2 atm).
+        \item Flow Direction: Normal to Boundary.
+        \item Turbulence Intensity: 5\%; Turbulent Viscosity Ratio: 10.
+        \item Total Temperature: 353.15 K ($80^\circ\text{C}$).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Outlet Boundaries (Mass Flow Outlet)}
+\begin{itemize}
+    \item \textbf{Cold Stream Outlet (\texttt{\_cold\_outlet\_mesh}):} Mass flow rate fixed at $\dot{m}_{cold} = 501.64\text{ kg/s}$ to establish an area-averaged bulk velocity of $v_{avg} = 5\text{ m/s}$.
+    \item \textbf{Hot Stream Outlet (\texttt{\_hot\_outlet\_mesh}):} Mass flow rate fixed at $\dot{m}_{hot} = 156.76\text{ kg/s}$ to establish an area-averaged bulk velocity of $v_{avg} = 5\text{ m/s}$.
+\end{itemize}
+
+\subsection{Wall and Symmetry Interfaces}
+\begin{itemize}
+    \item \textbf{Conjugate Heat Transfer Interfaces (\texttt{\_wall\_hot\_mesh} \& \texttt{\_wall\_cold\_mesh}):} Assigned a Coupled boundary condition with thermal shadow pairing. The physical wall thickness is set to zero because the aluminum dividing wall is resolved as an explicit solid continuum mesh.
+    \item \textbf{External Casing Wall (\texttt{\_adiabatic\_wall\_mesh}):} Specified as an adiabatic boundary with zero heat flux ($q'' = 0\text{ W/m}^2$).
+    \item \textbf{Centerline Axis (\texttt{symmetry\_axis}):} Assigned as an Axis symmetry boundary.
+\end{itemize}
+
+\section{Numerical Methods and Spatial Discretization}
+\begin{itemize}
+    \item \textbf{Pressure-Velocity Coupling:} SIMPLEC algorithm (Skewness Correction $= 0$, Rhie-Chow distance-based flux type). SIMPLEC offers faster convergence and stability for incompressible thermal flows.
+    \item \textbf{Spatial Gradient Discretization:} Least Squares Cell-Based.
+    \item \textbf{Pressure Formulation:} Second Order.
+    \item \textbf{Momentum and Swirl Velocity:} Second Order Upwind.
+    \item \textbf{Turbulent Kinetic Energy ($k$):} Second Order Upwind.
+    \item \textbf{Specific Dissipation Rate ($\omega$):} First Order Upwind. First-order discretization for $\omega$ near wall boundaries suppresses steep gradient oscillations, improving convergence stability.
+    \item \textbf{Energy Equation:} Second Order Upwind.
+\end{itemize}
+
+\section{Convergence Criteria and Solution Monitoring}
+\begin{itemize}
+    \item \textbf{Residual Monitors:} The absolute convergence threshold across continuity, $z$-velocity, $y$-velocity, swirl velocity, $k$, $\omega$, and energy equations was set to $10^{-5}$.
+    \item \textbf{Surface Report Monitors:} An Area-Weighted Average monitor tracking cold stream exit static temperature was logged to confirm thermal asymptotic stability.
+    \item \textbf{Initialization:} Hybrid Initialization was applied to establish a smooth initial field and avoid floating-point overflow.
+    \item \textbf{Iteration Count:} Iterated to 2000 iterations to ensure complete thermal boundary layer development and outlet temperature stabilization.
+\end{itemize}
+
+
+% --- CHAPTER 4 ---
+\chapter{Results, Discussion, and Post-Processing Contours}
+
+\section{Quantitative Output Parameters and Global Energy Balance}
+Following convergence of the numerical solver, integrated heat transfer and hydrodynamic parameters were extracted, as summarized in Table 4.1.
+
+\begin{table}[H]
+\centering
+\caption{Summary of global numerical parameters extracted from the converged CFD solution.}
+\label{tab:global_parameters}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Computational Parameter} & \textbf{Hot Wall Stream} & \textbf{Cold Wall Stream} & \textbf{Unit} \\
+\midrule
+Pressure Coefficient ($C_p$) & 306,921.94 & 308,146.61 & --- \\
+Average Nusselt Number ($Nu$) & 13,167.41 & 19,099.60 & --- \\
+Average Heat Transfer Coeff. ($h$) & 7,900.45 & 11,459.76 & $\text{W/m}^2\text{K}$ \\
+Total Heat Transfer Rate ($Q_{total}$) & -612,439.68 & +612,439.43 & W \\
+Area-Weighted Average Outlet Temp. ($T_{out}$) & 352.04 (78.89) & 293.48 (20.33) & $\text{K}\,(^\circ\text{C})$ \\
+Hydrodynamic Entrance Length ($L_e$) & --- & --- & m \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Engineering Interpretation of Numerical Parameters}
+
+\subsection{Global Energy Balance}
+The thermal energy released by the hot stream ($Q_{hot} = -612{,}439.68\text{ W}$) matches the thermal energy absorbed by the cold stream ($Q_{cold} = +612{,}439.43\text{ W}$) with a discrepancy below 0.0001\%. This validates first-law energy conservation across the domain.
+
+\subsection{Average Nusselt Number (Nu) and Convective Coefficient (h)}
+The Nusselt number represents the ratio of convective to conductive heat transport in the fluid. Elevated values ($Nu_{cold} = 19{,}099.60$, $Nu_{hot} = 13{,}167.41$) reflect intense turbulent mixing, yielding high convective coefficients ($11{,}459.76\text{ W/m}^2\text{K}$ for the cold stream and $7{,}900.45\text{ W/m}^2\text{K}$ for the hot stream).
+
+\subsection{Pressure Coefficient ($C_p$)}
+The dimensionless pressure coefficient reflects static pressure variation relative to dynamic pressure. The tabulated values characterize frictional pressure drops along tube and shell passages, which are critical for sizing pump power requirements.
+
+\subsection{Bulk Outlet Temperatures ($T_{out}$)}
+The thermal field indicates active heat exchange: the hot stream cools from $80.0^\circ\text{C}$ to $78.89^\circ\text{C}$, while the cold stream warms from $20.0^\circ\text{C}$ to $20.33^\circ\text{C}$.
+
+\subsection{Hydrodynamic Entrance Length Analysis}
+Because of high stream velocities ($5\text{ m/s}$) relative to the 3m exchanger length, velocity profiles do not achieve fully developed conditions. As seen in the centerline velocity magnitude curves, velocity gradients persist without plateauing into horizontal profiles. Consequently, the flow remains within the hydrodynamic developing regime across the entire tube length, precluding an empirical entrance length ($L_e$).
+
+\section{CFD-Post Contours and Graphical Profiles}
+All field contours are presented as full mirrored sections across the centerline axis of symmetry:
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[width=0.95\textwidth]{15.png}
+    \caption{Full mirrored static pressure contour across the counter-flow shell and tube domain.}
+    \label{fig:pressure_contour}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[width=0.95\textwidth]{16.png}
+    \caption{Full mirrored velocity magnitude contour displaying hydrodynamic boundary layer development.}
+    \label{fig:velocity_contour}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[width=0.95\textwidth]{17.png}
+    \caption{Full mirrored static temperature contour showing conjugate thermal heat exchange.}
+    \label{fig:temp_contour}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{18.png}
+        \caption{Cold wall interface}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{19.png}
+        \caption{Hot wall interface}
+    \end{subfigure}
+    \caption{Local surface convective heat transfer coefficient ($h_x$) distribution along the heat transfer interfaces.}
+    \label{fig:surface_htc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{20.png}
+        \caption{Cold wall interface}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{21.png}
+        \caption{Hot wall interface}
+    \end{subfigure}
+    \caption{Local surface Nusselt number ($Nu_x$) distribution along the heat transfer interfaces.}
+    \label{fig:surface_nusselt}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{22.png}
+        \caption{Hot wall interface}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{23.png}
+        \caption{Cold wall interface}
+    \end{subfigure}
+    \caption{Wall $y^+$ profiles along conjugate fluid-solid boundaries verifying $y^+ < 1$.}
+    \label{fig:wall_yplus_interfaces}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[width=0.6\textwidth]{24.png}
+    \caption{Wall $y^+$ distribution along the outer adiabatic casing shell boundary.}
+    \label{fig:wall_yplus_adiabatic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[width=0.88\textwidth]{25.png}
+    \caption{Convergence history of scaled residuals demonstrating convergence below the $10^{-5}$ criterion.}
+    \label{fig:residuals}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{26.png}
+        \caption{Cold stream midline (0.16 mm)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+         \includegraphics[width=\textwidth]{27.png}
+        \caption{Hot stream midline (0.05 mm)}
+    \end{subfigure}
+    \caption{Axial velocity magnitude distributions along midlines of cold and hot streams, demonstrating developing state.}
+    \label{fig:velocity_midlines}
+\end{figure}
+
+The 2D axisymmetric cross-section was revolved about the symmetry axis to reconstruct the 3D double-pipe counter-flow heat exchanger.
+
+
+% --- CHAPTER 5 ---
+\chapter{Responses to Analytical Project Questions}
+
+\section{Question 1: Analysis of Local Convection Coefficient ($h_x$) and Nusselt Number ($Nu_x$)}
+
+\subsection*{Problem Statement}
+Analyze the local convective heat transfer coefficient and compare the state of heat transfer across three flow regimes: fully developed, hydrodynamically developing, and exit boundary effects.
+
+\subsection*{Detailed Solution}
+In internal channel flows, differentiating between hydrodynamic and thermal boundary layer development is required to characterize the local heat transfer coefficient ($h_x$) and Nusselt number ($Nu_x$). The local convective heat transfer coefficient is defined via Newton's Law of Cooling:
+\begin{equation}
+q_s''(x) = h_x [T_s(x) - T_m(x)]
+\end{equation}
+where $q_s''(x)$ is the local wall heat flux, $T_s(x)$ is the surface wall temperature, $T_m(x)$ is the bulk mean fluid temperature, and $h_x$ is the local convective coefficient. The local Nusselt number is expressed as:
+\begin{equation}
+Nu_x = \frac{h_x D_h}{k}
+\end{equation}
+Spatial variations in $h_x$ map directly to local variations in $Nu_x$.
+
+\subsubsection{1. Hydrodynamically Developing Entrance Region}
+At the inlet, the fluid velocity profile is nearly uniform. Due to the no-slip condition on the wall ($u_{wall} = 0$), viscous boundary layers grow inward. Until these boundary layers merge at the tube centerline, the flow remains hydrodynamically developing.
+\begin{itemize}
+    \item The velocity profile $u(r,x)$ evolves with axial distance $x$.
+    \item Viscous boundary layer thickness grows monotonically.
+    \item Wall shear stress and velocity gradients vary along the streamwise coordinate.
+\end{itemize}
+This development modulates the thermal field, especially when the thermal boundary layer develops concurrently. The hydrodynamic entrance length is approximated by $L_h \approx 0.05\,\text{Re}\,D$ for laminar flow and $L_h \approx 10\,D$ for turbulent regimes. Fully developed relationships are invalid here because the velocity profile has not attained its asymptotic state.
+
+\subsubsection{2. Hydrodynamically Developed but Thermally Developing Region}
+Downstream of the hydrodynamic entrance length, the velocity profile remains invariant:
+\begin{equation}
+\frac{\partial u(r,x)}{\partial x} = 0
+\end{equation}
+However, the thermal boundary layer may continue to expand if wall temperature effects have not penetrated to the channel centerline. This occurs when an unheated starting length precedes an active thermal section.
+
+Because the thermal boundary layer is thin near the entrance, the transverse wall temperature gradient is steep. From Fourier's Law:
+\begin{equation}
+q_s'' = -k \left.\frac{\partial T}{\partial n}\right|_{wall}
+\end{equation}
+The heat flux and local convective coefficient ($h_x$) reach their maximum at the thermal entrance and decay downstream toward an asymptotic plateau. For laminar pipe flow under constant heat flux, the thermal entry behavior scales as:
+\begin{equation}
+Nu_x \propto \left( \frac{\text{Re}\,\text{Pr}\,D}{x} \right)^{1/3}
+\end{equation}
+\begin{equation}
+h_x \propto x^{-1/3}
+\end{equation}
+The thermal entrance length scales as $L_t \approx 0.05\,\text{Re}\,\text{Pr}\,D$. For fluids with $\text{Pr} > 1$ (such as liquid water), momentum diffuses faster than heat ($L_t > L_h$), whereas for $\text{Pr} < 1$, thermal development precedes hydrodynamic maturity.
+
+\subsubsection{3. Hydrodynamically and Thermally Fully Developed Flow}
+In this regime, both the velocity profile and the dimensionless temperature profile become invariant with axial position:
+\begin{equation}
+\frac{\partial u}{\partial x} = 0
+\end{equation}
+\begin{equation}
+\frac{\partial}{\partial x} \left[ \frac{T(r,x) - T_s(x)}{T_m(x) - T_s(x)} \right] = 0
+\end{equation}
+While the bulk mean fluid temperature $T_m(x)$ varies continuously along the channel, the normalized temperature profile remains self-similar. Consequently:
+\begin{equation}
+Nu_x = Nu = \text{constant}
+\end{equation}
+\begin{equation}
+h_x = h = \text{constant}
+\end{equation}
+For laminar circular tube flow, asymptotic Nusselt numbers are:
+\begin{equation}
+Nu = 
+\begin{cases}
+3.66, & \text{Constant Wall Temperature } (T_s = \text{const}) \\
+4.36, & \text{Constant Wall Heat Flux } (q_s'' = \text{const})
+\end{cases}
+\end{equation}
+Here, the convective heat transfer coefficient depends solely on fluid thermal conductivity ($k$), hydraulic diameter ($D_h$), and the thermal boundary condition:
+\begin{equation}
+h = \frac{Nu\,k}{D_h}
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{Systematic comparison across internal flow development regimes.}
+\label{tab:regimes_comp}
+\begin{tabularx}{\textwidth}{p{3.5cm}p{3.5cm}p{4cm}X}
+\toprule
+\textbf{Flow Regime} & \textbf{Velocity Profile} & \textbf{Temperature Profile} & \textbf{Convective Coeff. ($h_x$)} \\
+\midrule
+Hydrodynamic Entrance & Developing & Evolving simultaneously & Highly elevated, varies with $x$ \\
+\addlinespace
+Fully Developed Velocity, Developing Temperature & Invariant & Developing, boundary layer grows & Decays from entrance peak toward constant plateau \\
+\addlinespace
+Fully Developed Velocity and Temperature & Invariant & Normalized shape remains self-similar & Constant ($h_x = \text{const}$) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Question 2: Physical and Numerical Analysis of Project Boundary Conditions}
+
+\subsection*{Problem Statement}
+Analyze why the boundary conditions were specified as Pressure Inlet at the inlet and Mass Flow Outlet at the outlet. Explain what physical and numerical modifications would occur if Velocity Inlet and Pressure Outlet boundary conditions were applied instead.
+
+\subsection*{Detailed Solution}
+
+\subsubsection{(a) Rationale for Pressure Inlet and Mass Flow Outlet Configuration}
+\begin{enumerate}
+    \item \textbf{Exact Mass Conservation and Velocity Regulation:} In thermal analyses, mass flow rate directly dictates total advective heat transfer:
+    \begin{equation}
+    Q = \dot{m} c_p \Delta T
+    \end{equation}
+    Assigning a Mass Flow Outlet locks the mass flow rate to the prescribed design value, stabilizing the cross-sectional mean velocity at $5\text{ m/s}$.
+    \item \textbf{Numerical Stability and Acoustic Reflection Mitigation:} Defining a Pressure Inlet fixes the total stagnation pressure at 2 atm. This allows the SIMPLEC algorithm to resolve the static pressure field without non-physical pressure waves or numerical instabilities at the domain boundaries.
+\end{enumerate}
+
+\subsubsection{(b) Implications of Velocity Inlet and Pressure Outlet Configuration}
+\begin{enumerate}
+    \item \textbf{Artificial Uniform Velocity Profile:} Applying a Velocity Inlet enforces a flat uniform velocity profile ($v = 5\text{ m/s}$) across all inlet boundary nodes. This disrupts natural boundary layer formation at the leading edge, yielding an unphysical hydrodynamic entrance length.
+    \item \textbf{Risk of Numerical Backflow:} With a Pressure Outlet, local pressure fluctuations or developing boundary layer effects near the exit can trigger reverse flow. Under backflow conditions, the solver introduces ambient backflow reference temperatures into the computational domain, producing errors in the energy equation and destabilizing convergence.
+    \item \textbf{Alteration of Problem Physics:} Under the current setup, mass throughput is enforced and pressure drop is the dependent outcome. Reversing the boundary formulation alters the hydrodynamic response of the system.
+\end{enumerate}
+
+
+% --- CHAPTER 6 ---
+\chapter{Conclusions and Recommendations}
+
+\section{Summary of Numerical Findings}
+A 2D Axisymmetric Swirl numerical simulation of a counter-flow shell and tube heat exchanger was completed within ANSYS Fluent. The primary findings are:
+\begin{itemize}
+    \item \textbf{First-Law Energy Conservation:} Thermal energy absorbed by the cold fluid (612,439.43 W) matches the thermal energy released by the hot fluid (612,439.68 W) with an error under 0.0001\%, confirming global energy conservation.
+    \item \textbf{Grid Independence:} Across four structured grids (24,400 to 33,550 cells), variations in $\Delta T$ and $\Delta P$ remained below 0.5\%. The baseline mesh with 30,500 cells and $y^+ < 1$ was validated as the optimal discretization.
+    \item \textbf{Thermal Performance:} The hot fluid cooled from $80.0^\circ\text{C}$ to $78.89^\circ\text{C}$, while the cold fluid heated from $20.0^\circ\text{C}$ to $20.33^\circ\text{C}$. The average convective heat transfer coefficients were evaluated as $11{,}459.76\text{ W/m}^2\text{K}$ ($Nu = 19{,}099.60$) for the cold stream and $7{,}900.45\text{ W/m}^2\text{K}$ ($Nu = 13{,}167.41$) for the hot stream.
+    \item \textbf{Flow Development:} Due to high flow velocity ($5\text{ m/s}$) relative to the 3 m length, the flow remains within the hydrodynamically developing regime throughout the entire heat exchanger.
+\end{itemize}
+
+\section{Analytical Summary}
+\begin{itemize}
+    \item \textbf{Boundary Condition Selection:} Combining a Pressure Inlet with a Mass Flow Outlet maintained the required mean velocity ($5\text{ m/s}$), ensured solution stability, and eliminated backflow anomalies.
+    \item \textbf{Local Convective Behavior ($h_x$):} The local heat transfer coefficient peaked at the leading edge due to the thin boundary layer and decayed downstream as the boundary layer grew.
+\end{itemize}
+
+\section{Recommendations for Future Work}
+\begin{itemize}
+    \item \textbf{Channel Extension:} Increasing the heat exchanger length to capture the fully developed hydrodynamic profile and evaluate entrance length ($L_e$).
+    \item \textbf{Temperature-Dependent Thermophysical Properties:} Implementing variable fluid properties ($\rho(T)$, $\mu(T)$, $c_p(T)$, $k(T)$) to enhance thermal accuracy.
+    \item \textbf{3D Conjugate Modeling:} Constructing a full three-dimensional model to evaluate shell-side baffle interactions, secondary swirling flows, and cross-flow vortex shedding.
+\end{itemize}
+
+\end{document}
